@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  realestate-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: realestate_ml_app
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - ENVIRONMENT=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
