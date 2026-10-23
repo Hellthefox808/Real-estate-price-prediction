@@ -1,176 +1,146 @@
-# Real Estate Price Prediction Engine & Production Live API System
+# Real Estate Price Prediction Platform
 
-> Real-time Machine Learning Hedonic Valuation Platform powered by Live FRED Economic Data and OpenStreetMap Geocoding APIs.
+> Real-time property price valuation using Machine Learning, live Federal Reserve interest rates, and OpenStreetMap location data.
 
-[![CI/CD Pipeline](https://github.com/Hellthefox808/Real-estate-price-prediction/actions/workflows/ci.yml/badge.svg)](https://github.com/Hellthefox808/Real-estate-price-prediction/actions)
 [![Python Version](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![OWASP Security](https://img.shields.io/badge/OWASP-ASVS%20Level%202-green.svg)](SECURITY_AUDIT_REPORT.md)
-[![Live Data Coverage](https://img.shields.io/badge/Live%20Data-100%25-success.svg)](DATA_AUDIT_REPORT.md)
-[![Mock Data Usage](https://img.shields.io/badge/Mock%20Data-0%25-brightgreen.svg)](DATA_AUDIT_REPORT.md)
+[![Build Status](https://github.com/Hellthefox808/Real-estate-price-prediction/actions/workflows/ci.yml/badge.svg)](https://github.com/Hellthefox808/Real-estate-price-prediction/actions)
+[![Live Data](https://img.shields.io/badge/Data-100%25%20Live%20API-brightgreen.svg)](DATA_AUDIT_REPORT.md)
 
 ---
 
-![Real Estate AI Hero Banner](assets/hero_banner.jpg)
+![Real Estate Platform Banner](assets/hero_banner.jpg)
 
-**Version:** `1.0.0` | **Status:** `Production Ready` | **Author & Architect:** **Ravi Ranjan Singh**
-
----
-
-## 🏛️ Executive Summary & Vision
-
-Static real estate valuation models decay rapidly when interest rates or inflation fluctuate. The **Real Estate Price Prediction Engine** solves this problem by combining a Scikit-Learn Gradient Boosting ML Valuation Model ($R^2 = 0.9616$) with **real, live external API streams** from the Federal Reserve Bank of St. Louis (FRED API) and OpenStreetMap Nominatim Geocoding.
-
-Architected and maintained by **Ravi Ranjan Singh**, this platform delivers inflation-adjusted property valuations with sub-15ms cached latency and 100% live data fidelity.
+**Created & Maintained by:** **Ravi Ranjan Singh**  
+**Repository:** [github.com/Hellthefox808/Real-estate-price-prediction](https://github.com/Hellthefox808/Real-estate-price-prediction.git)  
 
 ---
 
-## ⚡ Key Platform Capabilities
+## 👋 Welcome & Overview
 
-- **100% Real Live Data Engine**: Live ingestion of US 30-Year Fixed Mortgage Rates (`MORTGAGE30US`) and Consumer Price Index (`CPIAUCSL`) directly from FRED API.
-- **Live Address Geocoding**: Real-time address geocoding and coordinate lookup via OpenStreetMap Nominatim API.
-- **Hedonic ML Valuation Model**: Scikit-Learn Gradient Boosting model ($R^2 = 0.9616$, $\text{RMSE} = \$20,581.24$) with feature contribution decomposition.
-- **Resilience & Caching**: Exponential backoff retries ($0.5s \times 2^{attempt-1}$) and TTL caching (1h macro, 24h geocoding).
-- **OWASP ASVS Level 2 Security**: Rate limiting (30 req/min/IP), strict Content Security Policy (CSP), `X-Frame-Options: DENY`, and HTML/XSS input sanitization.
-- **Interactive Web UI**: Dark theme dashboard with live market tickers, confidence interval range display, loading skeleton shimmers, and an embedded Data Audit modal.
+Welcome! I designed and built this **Real Estate Price Prediction Platform** to solve a real-world problem in property valuation.
+
+Most housing market prediction models rely on static, historical datasets. When interest rates rise or inflation shifts, static models quickly become out of date. To fix this, I created a machine learning system that combines a **Gradient Boosting valuation model** with **live external APIs**:
+
+1. **FRED (Federal Reserve Bank of St. Louis)**: Ingests current 30-year fixed mortgage rates and CPI inflation indices live.
+2. **OpenStreetMap Nominatim**: Geocodes address and city queries to real geographical coordinates in real-time.
 
 ---
 
-## 📊 Visual Dashboard Interface
+## ⚡ What Makes This Project Special?
+
+- **100% Real Live Data**: No hardcoded arrays, random numbers, or fake statistics. Every valuation uses real-time market data.
+- **Smart Economic Adjustments**: Automatically factors in how rising or falling mortgage interest rates affect real homebuying power.
+- **Explainable Predictions**: Displays a breakdown of feature contributions (e.g. square footage, quality rating, interest rate impact).
+- **Fast & Resilient**: Built-in TTL caching (1-hour macro data, 24-hour geocoding) means repeat queries return in under **15ms**.
+- **Clean & Accessible UI**: Responsive dark theme dashboard built with keyboard focus support, screen reader attributes, and smooth loading skeletons.
+
+---
+
+## 📸 Interface Preview
 
 ![Dashboard Visualization Preview](assets/dashboard_preview.jpg)
 
+---
+
+## 📐 How It Works (Architecture)
+
 ```
-+---------------------------------------------------------------------------------+
-| 🏛️ Antigravity Valuer               [🟢 FRED & OSM Live Connected] [📊 Audit]     |
-+---------------------------------------------------------------------------------+
-|  30-Yr Mortgage: 6.66% [LIVE FRED] | CPI: 332.6 [LIVE FRED] | Sentiment: Balanced |
-+---------------------------------------------------------------------------------+
-|  [Property Inputs Form]            |  [Valuation Results Display]               |
-|  - Address: Austin, TX             |  - Estimated Price: $625,549                |
-|  - Sq Ft: 2,100                    |  - Price Range: $584,889 - $666,210         |
-|  - Quality: 8 / 10                 |  - Verified OSM Coords: (30.2672, -97.7431) |
-|  - Year: 2016                      |  - Feature Importance Breakdown Meters     |
-+---------------------------------------------------------------------------------+
+[ Web Dashboard ] ──► [ FastAPI Server ] ──► [ Security & Rate Limiter ]
+                             │
+                             ├────► [ In-Memory TTL Cache ]
+                             │
+                             ├────► [ FRED API ] (Live Interest Rates & CPI)
+                             ├────► [ OpenStreetMap ] (Live Geocoding)
+                             │
+                             └────► [ Gradient Boosting ML Model ]
+                                       └──► Final Property Estimate + Breakdown
 ```
 
 ---
 
-## 📐 Architecture Overview
+## 🛠️ Tech Stack
 
-```
-[ Web Client (HTML5 / JS) ] 
-       │
-       │ HTTPS / REST (Pydantic Encapsulated)
-       ▼
-[ FastAPI Server (ASGI) ] ──► [ Security & Rate Limiter Middleware ]
-       │
-       ├────► [ In-Memory TTL Cache Layer ] (1h Macro / 24h Geocoding)
-       │
-       ├────► [ Live API Clients ] ──► [ FRED API ] & [ OpenStreetMap ]
-       │
-       └────► [ RealEstateMLEngine ] ──► Output Valuation + Contributions
-```
+- **Backend**: Python 3.11+, FastAPI, Uvicorn ASGI Server
+- **Machine Learning**: Scikit-Learn (Gradient Boosting Regressor), Pandas, NumPy
+- **Live Data APIs**: FRED Economic Data API, OpenStreetMap Nominatim API
+- **Frontend**: HTML5, Vanilla JavaScript, HSL Tokenized CSS3 Design System
+- **Security & Quality**: Pydantic v2 validation, IP rate limiting, Pytest test suite
+- **DevOps**: Docker, Docker Compose, GitHub Actions CI/CD
 
 ---
 
-## 💻 Technology Stack
+## 🚀 Quick Start Guide
 
-- **Backend Microservice**: Python 3.11+, FastAPI, Uvicorn ASGI Server.
-- **Machine Learning**: Scikit-Learn (Gradient Boosting Regressor), Pandas, NumPy.
-- **Live External APIs**: FRED API (Federal Reserve Bank of St. Louis), OpenStreetMap Nominatim API.
-- **Frontend Interface**: HTML5, Vanilla JavaScript (ES6+), HSL Tokenized CSS3 Design System.
-- **Data Validation & Security**: Pydantic v2, Regex XSS Sanitizer, Slowapi IP Rate Limiter.
-- **DevOps & Testing**: Docker, Docker Compose, Pytest, GitHub Actions CI/CD.
+### Option 1: Run with Python (Recommended)
 
----
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Hellthefox808/Real-estate-price-prediction.git
+   cd Real-estate-price-prediction
+   ```
 
-## 📂 Project Structure
+2. **Install requirements:**
+   ```bash
+   pip install -r backend/requirements.txt
+   ```
 
-```
-Real-estate-price-prediction/
-├── assets/
-│   ├── hero_banner.jpg                   # High-resolution architectural banner
-│   └── dashboard_preview.jpg             # Interactive UI visualization preview
-├── backend/
-│   ├── app/
-│   │   ├── clients/live_api_client.py    # Production HTTP Client (FRED + OSM API)
-│   │   ├── ml/engine.py                  # Gradient Boosting Hedonic Valuation Model
-│   │   ├── schemas/data_models.py        # Pydantic v2 Models + XSS Sanitizer
-│   │   └── main.py                       # FastAPI ASGI Server & Security Middleware
-│   └── tests/test_api.py                 # Automated pytest suite (8 passing tests)
-├── frontend/
-│   ├── index.html                        # WCAG 2.2 AA Responsive Interface
-│   ├── css/style.css                     # HSL Tokenized CSS Design System
-│   └── js/                               # Typed REST API Client & App Controller
-├── docs/MODULES.md                       # Per-file technical documentation module
-├── PROJECT_OVERVIEW.md                   # Project Brief & Business Solution
-├── DATA_AUDIT_REPORT.md                  # 11-Section Live Data Audit Report
-├── SECURITY_AUDIT_REPORT.md              # OWASP ASVS Level 2 & SAST Audit Report
-├── ENTERPRISE_SYSTEM_BLUEPRINT.md        # 30-Section Enterprise System Blueprint
-└── Dockerfile & docker-compose.yml       # Production Multi-Stage Containerization
-```
+3. **Launch the application:**
+   ```bash
+   python run.py
+   ```
+   Open `http://localhost:8000` in your browser.
 
 ---
 
-## 🚀 Quick Start & Installation
+### Option 2: Run with Docker Compose
 
-### Local Setup
-```bash
-git clone https://github.com/Hellthefox808/Real-estate-price-prediction.git
-cd Real-estate-price-prediction
-pip install -r backend/requirements.txt
-python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
-```
-Open `http://localhost:8000` in your web browser.
-
-### Docker Compose
 ```bash
 docker-compose up --build -d
 ```
+The app will launch on `http://localhost:8000`.
 
 ---
 
-## 🧪 Automated Testing
+## 🧪 Running Automated Tests
 
-Execute backend unit tests, live API health checks, and security tests:
+You can run the full test suite anytime with pytest:
 
 ```bash
 python -m pytest backend/tests -v
 ```
 
-```
-backend/tests/test_api.py ........                                       [100%]
-======================== 8 passed in 3.64s =========================
-```
+**Test Status:** All 8 test cases pass cleanly in under 4 seconds.
 
 ---
 
-## 📋 Documentation Portfolio
+## 📖 Project Documentation
 
-| Document | Description |
-| :--- | :--- |
-| [PROJECT_OVERVIEW.md](file:///c:/Users/ravir/Desktop/PROJECT/Project/FINAL%20YEAR%20PROJECT%27S/oooppiii/Real-Estate-Price-Prediction-Using-Machine-Learning-Project-main/PROJECT_OVERVIEW.md) | Project Brief & Strategic Vision |
-| [docs/MODULES.md](file:///c:/Users/ravir/Desktop/PROJECT/Project/FINAL%20YEAR%20PROJECT%27S/oooppiii/Real-Estate-Price-Prediction-Using-Machine-Learning-Project-main/docs/MODULES.md) | Per-File Technical Specification |
-| [DATA_AUDIT_REPORT.md](file:///c:/Users/ravir/Desktop/PROJECT/Project/FINAL%20YEAR%20PROJECT%27S/oooppiii/Real-Estate-Price-Prediction-Using-Machine-Learning-Project-main/DATA_AUDIT_REPORT.md) | 11-Section Live Data Audit Report |
-| [SECURITY_AUDIT_REPORT.md](file:///c:/Users/ravir/Desktop/PROJECT/Project/FINAL%20YEAR%20PROJECT%27S/oooppiii/Real-Estate-Price-Prediction-Using-Machine-Learning-Project-main/SECURITY_AUDIT_REPORT.md) | OWASP ASVS Level 2 Security Report |
-| [ENTERPRISE_SYSTEM_BLUEPRINT.md](file:///c:/Users/ravir/Desktop/PROJECT/Project/FINAL%20YEAR%20PROJECT%27S/oooppiii/Real-Estate-Price-Prediction-Using-Machine-Learning-Project-main/ENTERPRISE_SYSTEM_BLUEPRINT.md) | Autonomous Engineering Blueprint |
-| [CLEAN_REWRITE_AUDIT_REPORT.md](file:///c:/Users/ravir/Desktop/PROJECT/Project/FINAL%20YEAR%20PROJECT%27S/oooppiii/Real-Estate-Price-Prediction-Using-Machine-Learning-Project-main/CLEAN_REWRITE_AUDIT_REPORT.md) | Zero Assumption Refactoring Audit |
-| [CODE_CLEANUP_AUDIT_REPORT.md](file:///c:/Users/ravir/Desktop/PROJECT/Project/FINAL%20YEAR%20PROJECT%27S/oooppiii/Real-Estate-Price-Prediction-Using-Machine-Learning-Project-main/CODE_CLEANUP_AUDIT_REPORT.md) | Per-File Inventory & Change Log |
+I have documented every part of the architecture, security audit, and data policy in dedicated guides:
 
----
-
-## 🛡️ Security & Open Source Governance
-
-- [CONTRIBUTING.md](file:///c:/Users/ravir/Desktop/PROJECT/Project/FINAL%20YEAR%20PROJECT%27S/oooppiii/Real-Estate-Price-Prediction-Using-Machine-Learning-Project-main/CONTRIBUTING.md): Contribution guidelines and PR quality gates.
-- [SECURITY.md](file:///c:/Users/ravir/Desktop/PROJECT/Project/FINAL%20YEAR%20PROJECT%27S/oooppiii/Real-Estate-Price-Prediction-Using-Machine-Learning-Project-main/SECURITY.md): Vulnerability reporting policy.
-- [CODE_OF_CONDUCT.md](file:///c:/Users/ravir/Desktop/PROJECT/Project/FINAL%20YEAR%20PROJECT%27S/oooppiii/Real-Estate-Price-Prediction-Using-Machine-Learning-Project-main/CODE_OF_CONDUCT.md): Contributor Covenant v2.1.
-- [LICENSE](file:///c:/Users/ravir/Desktop/PROJECT/Project/FINAL%20YEAR%20PROJECT%27S/oooppiii/Real-Estate-Price-Prediction-Using-Machine-Learning-Project-main/LICENSE): MIT License.
+- [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) — Project vision, goals, and business solution
+- [DATA_AUDIT_REPORT.md](DATA_AUDIT_REPORT.md) — 11-section live data audit report
+- [SECURITY_AUDIT_REPORT.md](SECURITY_AUDIT_REPORT.md) — Security assessment & OWASP compliance
+- [ARCHITECTURE.md](ARCHITECTURE.md) — System data flow & architecture breakdown
+- [API.md](API.md) — REST API endpoint documentation
+- [DEPLOYMENT.md](DEPLOYMENT.md) — Production deployment guide
+- [TESTING.md](TESTING.md) — Test suite documentation
 
 ---
 
-## 👨‍💻 Author & Maintainer
+## 🤝 Contributing & License
 
-- **Author & Software Architect**: **Ravi Ranjan Singh**
-- **Repository**: [Real-estate-price-prediction](https://github.com/Hellthefox808/Real-estate-price-prediction)
-- **Security Inquiries**: `security@realestate-ml.org`
+Contributions, bug reports, and feature suggestions are always welcome! Please check out [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+## 👨‍💻 Author & Contact
+
+**Ravi Ranjan Singh**  
+*Software Architect & Developer*  
+
+- **GitHub**: [github.com/Hellthefox808](https://github.com/Hellthefox808)  
+- **Repository**: [Real-estate-price-prediction](https://github.com/Hellthefox808/Real-estate-price-prediction.git)  
+- **Email**: `security@realestate-ml.org`  
